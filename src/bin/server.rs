@@ -30,10 +30,10 @@ async fn main() {
             let mut line = String::new();
 
             // Send the new client connected message
-            let msg = format!("New client connected: {}\n", addr);
-            tx.send((msg.clone(), addr)).unwrap();
-            line.clear();
-            println!("{}", msg);
+            // let msg = format!("New client connected: {}\n", addr);
+            // tx.send((msg.clone(), addr)).unwrap();
+            // line.clear();
+            // println!("{}", msg);
 
             loop {
                 tokio::select! {

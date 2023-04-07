@@ -11,9 +11,8 @@ fn get_name() -> String {
 
     print!("Input your name: ");
     std::io::stdout().flush().unwrap();
-    let bytes_read = stdin.read_line(&mut line).unwrap();
+    let _bytes_read = stdin.read_line(&mut line).unwrap();
     line = line.replace("\n", "");
-    println!("Bytes read: {}", bytes_read);
 
     line
 }
@@ -25,9 +24,8 @@ fn get_address() -> String {
 
     print!("Address: ");
     std::io::stdout().flush().unwrap();
-    let bytes_read = stdin.read_line(&mut line).unwrap();
+    let _bytes_read = stdin.read_line(&mut line).unwrap();
     line = line.replace("\n", "");
-    println!("Bytes read: {}", bytes_read);
 
     line
 }
@@ -37,8 +35,9 @@ async fn main() {
     let name = get_name();
     let address = get_address();
     let mut state = ChatState::new(name, address);
+    let mut stdout = std::io::stdout();
 
-    let mut stream = TcpStream::connect("localhost:8001").await.unwrap();
+    let mut stream = TcpStream::connect(&state.address).await.unwrap();
 
     // Reader & Writer for the stream
     let (reader, mut writer) = stream.split();
@@ -52,14 +51,18 @@ async fn main() {
     loop {
         tokio::select! {
 
+
+
             // Receives the messages
             result = reader.read_line(&mut line) => {
+
                 if result.unwrap() == 0 {
                     break;
                 }
 
                 if state.filter_msg(&line) {
-                    println!("{}", line);
+                    print!("{}", line);
+                    stdout.flush().unwrap();
                     line.clear();
                 }
 
@@ -68,6 +71,7 @@ async fn main() {
 
             // Sends the message
             _result = user_reader.read_line(&mut user_line) => {
+
 
                 // If the line contains 'exit()', send the shutdown signal to the server
                 if user_line.contains("exit()") {

@@ -1,10 +1,7 @@
-use std::vec;
-
 pub struct ChatState {
     pub name: String,
     pub address: String,
     pub current_channel: String,
-    available_channels: Vec<String>,
 }
 
 impl ChatState {
@@ -13,7 +10,6 @@ impl ChatState {
             name,
             address,
             current_channel: String::from("general"),
-            available_channels: vec![String::from("general")],
         }
     }
 
@@ -42,10 +38,14 @@ impl ChatState {
     /// Changes the channel if the line contains approriate command
     pub fn process(&mut self, line: &String) -> bool {
         if line.contains("/c") {
-            println!("Contains /c");
+            println!("Channel changed");
             let segments = line.split(" ").collect::<Vec<&str>>();
             let new_channel = segments[1].replace("\n", "");
             self.current_channel = String::from(new_channel);
+
+            return false;
+        } else if line.contains("/w") {
+            println!("Current user: {}", self.name);
 
             return false;
         }
