@@ -38,8 +38,10 @@ async fn main() {
             loop {
                 tokio::select! {
                     result = reader.read_line(&mut line) => {
-                        if result.unwrap() == 0 {
 
+                        // If receives the shutdown signal, break the loop and finish the
+                        // task/thread
+                        if result.unwrap() == 0 {
                             println!("Client ({}) left", addr);
                             break;
                     }

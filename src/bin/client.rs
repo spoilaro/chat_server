@@ -1,7 +1,8 @@
 use std::io::Write;
-use std::result;
 use tokio::io::{AsyncBufReadExt, AsyncWriteExt, BufReader};
 use tokio::net::TcpStream;
+
+use chat_server::ChatState;
 
 /// Reads stdin for the name & removes the newline
 fn get_name() -> String {
@@ -35,6 +36,7 @@ fn get_address() -> String {
 async fn main() {
     let name = get_name();
     let address = get_address();
+    let mut state = ChatState::new(name, address);
 
     let mut stream = TcpStream::connect("localhost:8001").await.unwrap();
 
@@ -55,21 +57,31 @@ async fn main() {
                 if result.unwrap() == 0 {
                     break;
                 }
-                println!("{}", line);
-                line.clear();
+
+                if state.filter_msg(&line) {
+                    println!("{}", line);
+                    line.clear();
+                }
+
+
             }
 
             // Sends the message
             _result = user_reader.read_line(&mut user_line) => {
 
-
+                // If the line contains 'exit()', send the shutdown signal to the server
                 if user_line.contains("exit()") {
                     writer.shutdown().await.unwrap();
                     break;
                 }
 
-                writer.write_all(user_line.clone().as_bytes()).await.unwrap();
+                // Changes channels .etc if needed
+                if state.process(&user_line) {
+                    user_line = state.create_out(&user_line);
+                    writer.write_all(user_line.clone().as_bytes()).await.unwrap();
+                }
 
+                user_line.clear();
             }
 
         }
