@@ -30,19 +30,24 @@ async fn main() {
             let mut line = String::new();
 
             // Send the new client connected message
-            tx.send((format!("New client connected: {}\n", addr), addr))
-                .unwrap();
+            let msg = format!("New client connected: {}\n", addr);
+            tx.send((msg.clone(), addr)).unwrap();
             line.clear();
+            println!("{}", msg);
 
             loop {
                 tokio::select! {
                     result = reader.read_line(&mut line) => {
                         if result.unwrap() == 0 {
+
+                            println!("Client ({}) left", addr);
                             break;
                     }
                         tx.send((line.clone(), addr)).unwrap();
+                        println!("{}", line);
                         line.clear();
                     }
+
                     result = rx.recv() => {
                         let (msg, other_addr) = result.unwrap();
                         if addr != other_addr {
