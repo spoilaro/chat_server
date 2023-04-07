@@ -75,7 +75,7 @@ async fn main() {
                     break;
                 }
 
-                // Changes channels .etc if needed
+                // Changes channels if 'true' else just prints out
                 if state.process(&user_line) {
                     user_line = state.create_out(&user_line);
                     writer.write_all(user_line.clone().as_bytes()).await.unwrap();

@@ -17,6 +17,8 @@ impl ChatState {
         }
     }
 
+    /// Only prints if the current channel is the same as in the message OR the channel is also the
+    /// name of the current user. This is the private message implementation
     pub fn filter_msg(&self, line: &String) -> bool {
         let segments = line.split("/").collect::<Vec<&str>>();
         let message_channel = segments[0];
@@ -37,6 +39,7 @@ impl ChatState {
         false
     }
 
+    /// Changes the channel if the line contains approriate command
     pub fn process(&mut self, line: &String) -> bool {
         if line.contains("/c") {
             println!("Contains /c");
@@ -49,6 +52,7 @@ impl ChatState {
         return true;
     }
 
+    /// Creates print out with channel and sender
     pub fn create_out(&self, user_line: &String) -> String {
         let line = format!("{}/{}> {}", self.current_channel, self.name, user_line);
         line
